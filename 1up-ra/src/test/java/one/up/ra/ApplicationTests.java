@@ -1,5 +1,6 @@
-package one.up;
+package one.up.ra;
 
+import one.up.ra.Application;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
