@@ -21,7 +21,7 @@ public class ProductController {
     @RequestMapping(value = "/product/{id}")
     public ResponseEntity getProductV0(@PathVariable String id, @RequestHeader(value = "Accept-Version", defaultValue = "-1") String apiVersion) {
 
-        // When no version is given we respond with the latest version.
+        // When no accept header is given we respond with the latest version.
         if(Integer.parseInt(apiVersion) == -1) {
             return new ResponseEntity(getProductV2(id), HttpStatus.OK);
         }
@@ -54,6 +54,8 @@ public class ProductController {
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=2")
     public ProductV2 getProductV2(@PathVariable String id) {
+
+        // A range of versions is supported by the Accept-Version Header.
         return Products.findProductAsV2(id);
     }
 
