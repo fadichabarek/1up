@@ -48,39 +48,18 @@ public class ProductController {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.put("Warning", Collections.singletonList("299 - Endpoint is deprecated. Product Version 1 will be supported until MM-DD-YYYY."));
 
-        ProductV1 product = new ProductV1(id, "A Product, Version 1");
-        return new ResponseEntity<ProductV1>(product, headers, HttpStatus.OK);
+        return new ResponseEntity<ProductV1>(Products.findProductAsV1(id), headers, HttpStatus.OK);
 
     }
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=2")
     public ProductV2 getProductV2(@PathVariable String id) {
-        return findProductAsV2(id);
-    }
-
-    private ProductV2 findProductAsV2(String id) {
-        Map attributes = new HashMap<String, String>();
-
-        attributes.put("title", "A Product, Version 2");
-        attributes.put("price", "50 EUR");
-        attributes.put("size", "L");
-
-        return new ProductV2(id, ProductType.Shirt, attributes);
+        return Products.findProductAsV2(id);
     }
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=3")
     public ProductV3 getProductV3(@PathVariable String id) {
-        return findProductAsV3(id);
-    }
-
-    private ProductV3 findProductAsV3(String id) {
-        Map attributes = new HashMap<String, String>();
-
-        attributes.put("title", "A Product, Version 3");
-        attributes.put("price", "50 EUR");
-        attributes.put("size", "L");
-
-        return new ProductV3(id, new Category("1", "Shirt", new Category[0]), attributes);
+        return Products.findProductAsV3(id);
     }
 
 }
