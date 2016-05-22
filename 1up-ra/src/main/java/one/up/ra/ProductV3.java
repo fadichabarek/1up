@@ -2,15 +2,20 @@ package one.up.ra;
 
 import java.util.Map;
 
-public class ProductV2 {
+public class ProductV3 {
 
     private final String id;
-    private final ProductType type;
+
+    public Category getCategory() {
+        return category;
+    }
+
+    private final Category category;
     private final Map<String, String> attributes;
 
-    public ProductV2(String id, ProductType type, Map<String, String> attributes) {
+    public ProductV3(String id, Category category, Map<String, String> attributes) {
         this.id = id;
-        this.type = type;
+        this.category = category;
         this.attributes = attributes;
     }
 
@@ -22,7 +27,4 @@ public class ProductV2 {
         return attributes;
     }
 
-    public ProductType getType() {
-        return type;
-    }
 }

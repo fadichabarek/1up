@@ -1,5 +1,6 @@
 package one.up.ra;
 
+@Deprecated
 public class ProductV1 {
     private final String id;
     private final String title;
