@@ -35,7 +35,7 @@ public class ProductController {
 
         // When an endpoint isn't supported anymore we send a 410 Gone status code.
         if(Integer.parseInt(apiVersion) < 1) {
-            counterService.increment("api.gone");
+            counterService.increment("api.gone.product.id");
             return new ResponseEntity(HttpStatus.GONE);
         }
 
@@ -51,7 +51,7 @@ public class ProductController {
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=1")
     public ResponseEntity<ProductV1> getProductV1(@PathVariable String id) {
-        counterService.increment("api.deprecated");
+        counterService.increment("api.deprecated.product.id.");
 
         // When an endpoint is deprecated we warn the client with an HTTP Warning Header.
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
@@ -63,7 +63,7 @@ public class ProductController {
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=2")
     public ProductV2 getProductV2(@PathVariable String id) {
-        counterService.increment("api.ok");
+        counterService.increment("api.ok.product.id");
 
         // A range of versions is supported by the Accept-Version Header.
         return Products.findProductAsV2(id);
