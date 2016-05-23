@@ -1,8 +1,10 @@
 package one.up.ra;
 
-import org.springframework.boot.autoconfigure.integration.IntegrationAutoConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,13 +12,18 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
+@Service
 public class ProductController {
+
+    private final CounterService counterService;
+
+    @Autowired
+    public ProductController(CounterService counterService) {
+        this.counterService = counterService;
+    }
 
     @RequestMapping(value = "/product/{id}")
     public ResponseEntity getProductV0(@PathVariable String id, @RequestHeader(value = "Accept-Version", defaultValue = "-1") String apiVersion) {
@@ -28,6 +35,7 @@ public class ProductController {
 
         // When an endpoint isn't supported anymore we send a 410 Gone status code.
         if(Integer.parseInt(apiVersion) < 1) {
+            counterService.increment("api.gone");
             return new ResponseEntity(HttpStatus.GONE);
         }
 
@@ -43,6 +51,7 @@ public class ProductController {
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=1")
     public ResponseEntity<ProductV1> getProductV1(@PathVariable String id) {
+        counterService.increment("api.deprecated");
 
         // When an endpoint is deprecated we warn the client with an HTTP Warning Header.
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
@@ -54,6 +63,7 @@ public class ProductController {
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=2")
     public ProductV2 getProductV2(@PathVariable String id) {
+        counterService.increment("api.ok");
 
         // A range of versions is supported by the Accept-Version Header.
         return Products.findProductAsV2(id);
@@ -61,6 +71,7 @@ public class ProductController {
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=3")
     public ProductV3 getProductV3(@PathVariable String id) {
+        counterService.increment("api.ok");
         return Products.findProductAsV3(id);
     }
 
