@@ -51,9 +51,9 @@ public class ProductController {
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=1")
     public ResponseEntity<ProductV1> getProductV1(@PathVariable String id) {
+        // When an endpoint is deprecated we warn the client with an HTTP Warning Header.
         counterService.increment("api.deprecated.product.id");
 
-        // When an endpoint is deprecated we warn the client with an HTTP Warning Header.
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.put("Warning", Collections.singletonList("299 - Endpoint is deprecated. Product Version 1 will be supported until MM-DD-YYYY."));
 
@@ -63,9 +63,8 @@ public class ProductController {
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=2")
     public ProductV2 getProductV2(@PathVariable String id) {
-        counterService.increment("api.ok.product.id");
-
         // A range of versions is supported by the Accept-Version Header.
+        counterService.increment("api.ok.product.id");
         return Products.findProductAsV2(id);
     }
 
