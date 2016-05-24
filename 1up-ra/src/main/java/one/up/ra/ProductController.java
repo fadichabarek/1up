@@ -7,11 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 
 @RestController
@@ -50,14 +48,11 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=1")
-    public ResponseEntity<ProductV1> getProductV1(@PathVariable String id) {
+    public ResponseEntity<ProductV1> getProductV1(@PathVariable String id, HttpServletResponse response) {
         // When an endpoint is deprecated we warn the client with an HTTP Warning Header.
         counterService.increment("api.deprecated.product.id");
-
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.put("Warning", Collections.singletonList("299 - Endpoint is deprecated. Product Version 1 will be supported until MM-DD-YYYY."));
-
-        return new ResponseEntity<ProductV1>(Products.findProductAsV1(id), headers, HttpStatus.OK);
+        response.setHeader("Warning", "299 - Endpoint is deprecated. Product Version 1 will be supported until MM-DD-YYYY.");
+        return new ResponseEntity<ProductV1>(Products.findProductAsV1(id), HttpStatus.OK);
 
     }
 
@@ -72,6 +67,13 @@ public class ProductController {
     public ProductV3 getProductV3(@PathVariable String id) {
         counterService.increment("api.ok.product.id");
         return Products.findProductAsV3(id);
+    }
+
+    @RequestMapping(value = "/product", method = RequestMethod.OPTIONS)
+    public ResponseEntity options(HttpServletResponse response) {
+        response.setHeader("Allow", "HEAD,GET,POST,PUT,OPTIONS");
+
+        return new ResponseEntity(new ApiOptions(1), HttpStatus.OK);
     }
 
 }
