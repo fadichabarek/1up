@@ -5,12 +5,9 @@ import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collections;
 
 @RestController
 @Service
@@ -27,18 +24,18 @@ public class ProductController {
     public ResponseEntity getProductV0(@PathVariable String id, @RequestHeader(value = "Accept-Version", defaultValue = "-1") String apiVersion) {
 
         // When no accept header is given we respond with the latest version.
-        if(Integer.parseInt(apiVersion) == -1) {
-            return new ResponseEntity(getProductV2(id), HttpStatus.OK);
+        if (Integer.parseInt(apiVersion) == -1) {
+            return new ResponseEntity(getProductV3(id), HttpStatus.OK);
         }
 
         // When an endpoint isn't supported anymore we send a 410 Gone status code.
-        if(Integer.parseInt(apiVersion) < 1) {
+        if (Integer.parseInt(apiVersion) < 1) {
             counterService.increment("api.gone.product.id");
             return new ResponseEntity(HttpStatus.GONE);
         }
 
         // When an endpoint version is used that has never been supported we send a 406 Not Acceptable.
-        if(Integer.parseInt(apiVersion) > 3) {
+        if (Integer.parseInt(apiVersion) > 3) {
             return new ResponseEntity(HttpStatus.NOT_ACCEPTABLE);
         }
 
@@ -48,11 +45,11 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/product/{id}", headers = "Accept-Version=1")
-    public ResponseEntity<ProductV1> getProductV1(@PathVariable String id, HttpServletResponse response) {
+    public ProductV1 getProductV1(@PathVariable String id, HttpServletResponse response) {
         // When an endpoint is deprecated we warn the client with an HTTP Warning Header.
         counterService.increment("api.deprecated.product.id");
         response.setHeader("Warning", "299 - Endpoint is deprecated. Product Version 1 will be supported until MM-DD-YYYY.");
-        return new ResponseEntity<ProductV1>(Products.findProductAsV1(id), HttpStatus.OK);
+        return Products.findProductAsV1(id);
 
     }
 
@@ -72,7 +69,6 @@ public class ProductController {
     @RequestMapping(value = "/product", method = RequestMethod.OPTIONS)
     public ResponseEntity options(HttpServletResponse response) {
         response.setHeader("Allow", "HEAD,GET,POST,PUT,OPTIONS");
-
         return new ResponseEntity(new ApiOptions(1), HttpStatus.OK);
     }
 
